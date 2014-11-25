@@ -5,7 +5,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -17,7 +16,7 @@ public class MainActivity extends ActionBarActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
     ButterKnife.inject(this);
-    recyclerView.setAdapter(new MainAdapter(Toast.makeText(this, "", Toast.LENGTH_SHORT)));
+    recyclerView.setAdapter(new MainAdapter(this));
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
     recyclerView.setItemAnimator(new DefaultItemAnimator());
   }
