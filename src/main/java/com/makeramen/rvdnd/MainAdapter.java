@@ -103,10 +103,12 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
     }
 
     @Override public void onClick(View v) {
+      mToast.setText(text.getText() + " clicked!");
       mToast.show();
     }
 
     @Override public boolean onLongClick(View v) {
+      mToast.setText(text.getText() + " long clicked!");
       mToast.show();
       return true;
     }
