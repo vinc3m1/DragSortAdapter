@@ -2,7 +2,6 @@ package com.makeramen.rvdnd;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
