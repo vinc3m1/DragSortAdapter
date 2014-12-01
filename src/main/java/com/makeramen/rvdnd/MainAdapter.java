@@ -3,8 +3,8 @@ package com.makeramen.rvdnd;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,7 +23,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
     implements View.OnDragListener {
 
   @NonNull private final Toast toast;
-  @Nullable private Long draggingId = null;
+  private long draggingId = RecyclerView.NO_ID;
+  private PointF debouncePoint = null;
 
   static final String[] NUMBERS = {
       "zero",
@@ -91,9 +92,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
   @Override public void onBindViewHolder(MainViewHolder holder, int position) {
     int itemId = data.get(position);
     holder.text.setText(NUMBERS[itemId]);
-    holder.cardView.setVisibility(draggingId != null && draggingId == itemId
-        ? View.INVISIBLE
-        : View.VISIBLE);
+    holder.cardView.setVisibility(draggingId == itemId ? View.INVISIBLE : View.VISIBLE);
   }
 
   @Override public long getItemId(int position) {
@@ -132,8 +131,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
 
   @Override public boolean onDrag(View v, DragEvent event) {
     if (v instanceof RecyclerView) {
-      RecyclerView recyclerView = (RecyclerView) v;
-      long itemId = (long) event.getLocalState();
+      final RecyclerView recyclerView = (RecyclerView) v;
+      final long itemId = (long) event.getLocalState();
 
       switch (event.getAction()) {
         case DragEvent.ACTION_DRAG_STARTED:
@@ -152,18 +151,60 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
           }
 
           if (toPosition > 0 && fromPosition != toPosition) {
-            Integer itemData = data.remove(fromPosition);
-            data.add(toPosition, itemData);
+            RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
+            if (animator.isRunning()) {
+              // currently animating, debounce move
 
-            notifyItemMoved(fromPosition, toPosition);
-            Log.d("vmi", "notifyItemMoved from:" + fromPosition + " to:" + toPosition);
+              // only attach one listener at a time
+              if (debouncePoint == null) {
+                debouncePoint = new PointF();
+                animator.isRunning(new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
+                  @Override public void onAnimationsFinished() {
+                    if (debouncePoint == null) { return; }
+
+                    int fromPosition = recyclerView.findViewHolderForItemId(itemId).getPosition();
+
+                    View child = recyclerView.findChildViewUnder(debouncePoint.x, debouncePoint.y);
+                    if (child != null) {
+                      int toPosition = recyclerView.getChildViewHolder(child).getPosition();
+                      data.add(toPosition, data.remove(fromPosition));
+                      notifyItemMoved(fromPosition, toPosition);
+                    }
+
+                    // reset so we know to attach listener again next time
+                    debouncePoint = null;
+                  }
+                });
+              }
+
+              // we hold a Point because findChildViewUnder could be wrong during animation
+              debouncePoint.x = event.getX();
+              debouncePoint.y = event.getY();
+            } else {
+              // not animating, go ahead and move
+              Log.d("vmi", "moving to position: " + toPosition);
+              data.add(toPosition, data.remove(fromPosition));
+              notifyItemMoved(fromPosition, toPosition);
+
+              // reset debouncer
+              debouncePoint = null;
+            }
           }
           break;
 
         case DragEvent.ACTION_DRAG_ENDED:
           Log.d("vmi", "dropped");
-          draggingId = null;
-          notifyItemChanged(recyclerView.findViewHolderForItemId(itemId).getPosition());
+
+          draggingId = RecyclerView.NO_ID;
+          debouncePoint = null;
+
+          // queue up the show animation until after all move animations are finished
+          recyclerView.getItemAnimator().isRunning(
+              new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
+                @Override public void onAnimationsFinished() {
+                  notifyItemChanged(recyclerView.findViewHolderForItemId(itemId).getPosition());
+                }
+              });
           break;
 
         case DragEvent.ACTION_DROP:
