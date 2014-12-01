@@ -122,7 +122,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
     @Override public boolean onLongClick(View v) {
       toast.setText(text.getText() + " long clicked!");
       toast.show();
-      v.startDrag(null, new MainDragShadowBuilder(v), getItemId(), 0);
+      v.startDrag(null, new View.DragShadowBuilder(v), getItemId(), 0);
       return true;
     }
   }
@@ -220,17 +220,5 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
       }
     }
     return true;
-  }
-
-  static class MainDragShadowBuilder extends View.DragShadowBuilder {
-    public MainDragShadowBuilder(View view) {
-      super(view);
-    }
-
-    @Override public void onProvideShadowMetrics(@NonNull Point shadowSize,
-        @NonNull Point shadowTouchPoint) {
-      Log.d("vmi", "shadowSize: " + shadowSize + "  touchPoint: " + shadowTouchPoint);
-      super.onProvideShadowMetrics(shadowSize, shadowTouchPoint);
-    }
   }
 }
