@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Vincent Mi
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.makeramen.dragsortadapter;
 
 import android.graphics.PointF;
@@ -49,7 +65,8 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
           float x = event.getX();
           float y = event.getY();
 
-          if (PointF.length(targetPoint.x - x, targetPoint.y - y) > touchSlop) {
+          if (targetPoint.equals(0, 0)
+              || PointF.length(targetPoint.x - x, targetPoint.y - y) > touchSlop) {
             targetPoint.set(x, y);
             debounceHandler.removeCallbacksAndMessages(null);
             debounceHandler.postDelayed(new Runnable() {
@@ -65,7 +82,6 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
                   notifyItemMoved(fromPosition, toPosition);
                 }
 
-                // reset so we know to attach listener again next time
                 targetPoint.set(0, 0);
               }
             }, recyclerView.getItemAnimator().getMoveDuration());
@@ -76,7 +92,7 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
 
         case DragEvent.ACTION_DRAG_ENDED:
           draggingId = RecyclerView.NO_ID;
-          targetPoint.set(0, 0);;
+          targetPoint.set(0, 0);
 
           // queue up the show animation until after all move animations are finished
           recyclerView.getItemAnimator().isRunning(
