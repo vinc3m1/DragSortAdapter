@@ -143,14 +143,21 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
           break;
 
         case DragEvent.ACTION_DRAG_LOCATION:
+          int fromPosition = recyclerView.findViewHolderForItemId(itemId).getPosition();
+          int toPosition = -1;
+
           View child = recyclerView.findChildViewUnder(event.getX(), event.getY());
-          String text = null;
           if (child != null) {
-            MainViewHolder holder = (MainViewHolder) recyclerView.getChildViewHolder(child);
-            text = holder.text.getText().toString();
+            toPosition = recyclerView.getChildViewHolder(child).getPosition();
           }
 
-          Log.d("vmi", "x:" + event.getX() + " y:" + event.getY() + " child: " + text);
+          if (toPosition > 0 && fromPosition != toPosition) {
+            Integer itemData = data.remove(fromPosition);
+            data.add(toPosition, itemData);
+
+            notifyItemMoved(fromPosition, toPosition);
+            Log.d("vmi", "notifyItemMoved from:" + fromPosition + " to:" + toPosition);
+          }
           break;
 
         case DragEvent.ACTION_DRAG_ENDED:
