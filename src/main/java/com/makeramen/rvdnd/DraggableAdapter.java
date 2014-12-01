@@ -1,91 +1,36 @@
 package com.makeramen.rvdnd;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.PointF;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.DragEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import com.makeramen.rvdnd.util.EnglishNumberToWords;
-import java.util.List;
 
-public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder>
-    implements View.OnDragListener {
+public abstract class DraggableAdapter<VH extends RecyclerView.ViewHolder>
+    extends RecyclerView.Adapter<VH> implements
+    View.OnDragListener {
 
-  private final List<Integer> data;
-  private final Toast toast;
   private long draggingId = RecyclerView.NO_ID;
   private PointF debouncePoint = null;
 
-  @SuppressLint("ShowToast")
-  public MainAdapter(Context context, List<Integer> data) {
-    super();
-    this.data = data;
-    this.toast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
-    setHasStableIds(true); // required for drag and drop
+  public abstract void move(int fromPosition, int toPosition);
+
+  public void onDrop() { }
+
+  public long getDraggingId() {
+    return draggingId;
   }
-
-  @Override public MainViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    View view = inflater.inflate(R.layout.item_main, parent, false);
-    MainViewHolder holder = new MainViewHolder(view);
-    view.setOnClickListener(holder);
-    view.setOnLongClickListener(holder);
-    return holder;
-  }
-
-  @Override public void onBindViewHolder(MainViewHolder holder, int position) {
-    int itemId = data.get(position);
-    holder.text.setText(EnglishNumberToWords.convert(itemId));
-    holder.cardView.setVisibility(draggingId == itemId ? View.INVISIBLE : View.VISIBLE);
-  }
-
-  @Override public long getItemId(int position) {
-    return data.get(position);
-  }
-
-  @Override public int getItemCount() {
-    return data.size();
-  }
-
-  class MainViewHolder extends RecyclerView.ViewHolder implements
-      View.OnClickListener, View.OnLongClickListener {
-
-    @InjectView(R.id.card) CardView cardView;
-    @InjectView(R.id.text) TextView text;
-
-    public MainViewHolder(View itemView) {
-      super(itemView);
-      ButterKnife.inject(this, itemView);
-    }
-
-    @Override public void onClick(View v) {
-      toast.setText(text.getText() + " clicked!");
-      toast.show();
-    }
-
-    @Override public boolean onLongClick(View v) {
-      toast.setText(text.getText() + " long clicked!");
-      toast.show();
-      v.startDrag(null, new View.DragShadowBuilder(v), getItemId(), 0);
-      return true;
-    }
-  }
-
-  // DRAG AND DROP METHODS & CLASSES BELOW
 
   @Override public boolean onDrag(View v, DragEvent event) {
     if (v instanceof RecyclerView) {
       final RecyclerView recyclerView = (RecyclerView) v;
-      final long itemId = (long) event.getLocalState();
+      final long itemId;
+      try {
+        itemId = (long) event.getLocalState();
+      } catch (NullPointerException e) {
+        throw new IllegalArgumentException(
+            "startDrag must be called with myLocalState that is a long of value getItemId()");
+      }
 
       switch (event.getAction()) {
         case DragEvent.ACTION_DRAG_STARTED:
@@ -120,7 +65,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
                     View child = recyclerView.findChildViewUnder(debouncePoint.x, debouncePoint.y);
                     if (child != null) {
                       int toPosition = recyclerView.getChildViewHolder(child).getPosition();
-                      data.add(toPosition, data.remove(fromPosition));
+                      move(fromPosition, toPosition);
                       notifyItemMoved(fromPosition, toPosition);
                     }
 
@@ -136,7 +81,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
             } else {
               // not animating, go ahead and move
               Log.d("vmi", "moving to position: " + toPosition);
-              data.add(toPosition, data.remove(fromPosition));
+              move(fromPosition, toPosition);
               notifyItemMoved(fromPosition, toPosition);
 
               // reset debouncer
@@ -155,13 +100,14 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
           recyclerView.getItemAnimator().isRunning(
               new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
                 @Override public void onAnimationsFinished() {
-                  notifyItemChanged(recyclerView.findViewHolderForItemId(itemId).getPosition());
+                  RecyclerView.ViewHolder vh = recyclerView.findViewHolderForItemId(itemId);
+                  if (vh != null) { notifyItemChanged(vh.getPosition()); }
                 }
               });
           break;
 
         case DragEvent.ACTION_DROP:
-          // TODO this is where your post-drop logic goes!
+          onDrop();
           break;
 
         case DragEvent.ACTION_DRAG_ENTERED:
