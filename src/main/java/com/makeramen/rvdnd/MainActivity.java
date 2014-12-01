@@ -16,7 +16,9 @@ public class MainActivity extends ActionBarActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
     ButterKnife.inject(this);
-    recyclerView.setAdapter(new MainAdapter(this));
+    MainAdapter adapter = new MainAdapter(this);
+    recyclerView.setAdapter(adapter);
+    recyclerView.setOnDragListener(adapter);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
     recyclerView.setItemAnimator(new DefaultItemAnimator());
   }
