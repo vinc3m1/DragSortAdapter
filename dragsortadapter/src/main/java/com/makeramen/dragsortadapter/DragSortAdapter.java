@@ -1,17 +1,21 @@
 package com.makeramen.dragsortadapter;
 
 import android.graphics.PointF;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
     extends RecyclerView.Adapter<VH> implements
     View.OnDragListener {
 
   private long draggingId = RecyclerView.NO_ID;
-  private PointF debouncePoint = null;
+  private final Handler debounceHandler = new Handler(Looper.getMainLooper());
+  private final PointF targetPoint = new PointF();
 
   public abstract void move(int fromPosition, int toPosition);
 
@@ -40,53 +44,31 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
           break;
 
         case DragEvent.ACTION_DRAG_LOCATION:
-          int fromPosition = recyclerView.findViewHolderForItemId(itemId).getPosition();
-          int toPosition = -1;
+          int touchSlop = ViewConfiguration.get(v.getContext()).getScaledTouchSlop();
 
-          View child = recyclerView.findChildViewUnder(event.getX(), event.getY());
-          if (child != null) {
-            toPosition = recyclerView.getChildViewHolder(child).getPosition();
-          }
+          float x = event.getX();
+          float y = event.getY();
 
-          if (toPosition > 0 && fromPosition != toPosition) {
-            RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
-            if (animator.isRunning()) {
-              // currently animating, debounce move
+          if (PointF.length(targetPoint.x - x, targetPoint.y - y) > touchSlop) {
+            targetPoint.set(x, y);
+            debounceHandler.removeCallbacksAndMessages(null);
+            debounceHandler.postDelayed(new Runnable() {
+              @Override public void run() {
+                if (targetPoint.equals(0, 0)) { return; }
 
-              // only attach one listener at a time
-              if (debouncePoint == null) {
-                debouncePoint = new PointF();
-                animator.isRunning(new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
-                  @Override public void onAnimationsFinished() {
-                    if (debouncePoint == null) { return; }
+                int fromPosition = recyclerView.findViewHolderForItemId(itemId).getPosition();
 
-                    int fromPosition = recyclerView.findViewHolderForItemId(itemId).getPosition();
+                View child = recyclerView.findChildViewUnder(targetPoint.x, targetPoint.y);
+                if (child != null) {
+                  int toPosition = recyclerView.getChildViewHolder(child).getPosition();
+                  move(fromPosition, toPosition);
+                  notifyItemMoved(fromPosition, toPosition);
+                }
 
-                    View child = recyclerView.findChildViewUnder(debouncePoint.x, debouncePoint.y);
-                    if (child != null) {
-                      int toPosition = recyclerView.getChildViewHolder(child).getPosition();
-                      move(fromPosition, toPosition);
-                      notifyItemMoved(fromPosition, toPosition);
-                    }
-
-                    // reset so we know to attach listener again next time
-                    debouncePoint = null;
-                  }
-                });
+                // reset so we know to attach listener again next time
+                targetPoint.set(0, 0);
               }
-
-              // we hold a Point because findChildViewUnder could be wrong during animation
-              debouncePoint.x = event.getX();
-              debouncePoint.y = event.getY();
-            } else {
-              // not animating, go ahead and move
-              Log.d("vmi", "moving to position: " + toPosition);
-              move(fromPosition, toPosition);
-              notifyItemMoved(fromPosition, toPosition);
-
-              // reset debouncer
-              debouncePoint = null;
-            }
+            }, recyclerView.getItemAnimator().getMoveDuration());
           }
           // TODO edge scrolling
 
@@ -94,7 +76,7 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
 
         case DragEvent.ACTION_DRAG_ENDED:
           draggingId = RecyclerView.NO_ID;
-          debouncePoint = null;
+          targetPoint.set(0, 0);;
 
           // queue up the show animation until after all move animations are finished
           recyclerView.getItemAnimator().isRunning(
@@ -111,7 +93,7 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
           break;
 
         case DragEvent.ACTION_DRAG_ENTERED:
-          // probably not used
+          // probably not used?
           break;
         case DragEvent.ACTION_DRAG_EXITED:
           // TODO edge scrolling
