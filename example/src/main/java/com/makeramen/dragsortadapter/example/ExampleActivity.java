@@ -1,4 +1,4 @@
-package com.makeramen.dragsortadapter;
+package com.makeramen.dragsortadapter.example;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
