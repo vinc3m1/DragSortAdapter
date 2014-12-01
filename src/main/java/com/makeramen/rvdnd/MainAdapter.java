@@ -3,7 +3,6 @@ package com.makeramen.rvdnd;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PointF;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,68 +14,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import java.util.ArrayList;
+import com.makeramen.rvdnd.util.EnglishNumberToWords;
 import java.util.List;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder>
     implements View.OnDragListener {
 
-  @NonNull private final Toast toast;
+  private final List<Integer> data;
+  private final Toast toast;
   private long draggingId = RecyclerView.NO_ID;
   private PointF debouncePoint = null;
 
-  static final String[] NUMBERS = {
-      "zero",
-      "one",
-      "two",
-      "three",
-      "four",
-      "five",
-      "six",
-      "seven",
-      "eight",
-      "nine",
-      "ten",
-      "eleven",
-      "twelve",
-      "thirteen",
-      "fourteen",
-      "fifteen",
-      "sixteen",
-      "seventeen",
-      "eighteen",
-      "nineteen",
-      "twenty"
-  };
-
-  final List<Integer> data = new ArrayList<Integer>() {{
-    add(1);
-    add(2);
-    add(3);
-    add(4);
-    add(5);
-    add(6);
-    add(7);
-    add(8);
-    add(9);
-    add(10);
-    add(11);
-    add(12);
-    add(13);
-    add(14);
-    add(15);
-    add(16);
-    add(17);
-    add(18);
-    add(19);
-    add(20);
-  }};
-
   @SuppressLint("ShowToast")
-  public MainAdapter(Context context) {
+  public MainAdapter(Context context, List<Integer> data) {
     super();
-    setHasStableIds(true);
+    this.data = data;
     this.toast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
+    setHasStableIds(true); // required for drag and drop
   }
 
   @Override public MainViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -90,7 +44,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
 
   @Override public void onBindViewHolder(MainViewHolder holder, int position) {
     int itemId = data.get(position);
-    holder.text.setText(NUMBERS[itemId]);
+    holder.text.setText(EnglishNumberToWords.convert(itemId));
     holder.cardView.setVisibility(draggingId == itemId ? View.INVISIBLE : View.VISIBLE);
   }
 
@@ -189,11 +143,11 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
               debouncePoint = null;
             }
           }
+          // TODO edge scrolling
+
           break;
 
         case DragEvent.ACTION_DRAG_ENDED:
-          Log.d("vmi", "dropped");
-
           draggingId = RecyclerView.NO_ID;
           debouncePoint = null;
 
@@ -207,14 +161,14 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
           break;
 
         case DragEvent.ACTION_DROP:
-          // TODO
+          // TODO this is where your post-drop logic goes!
           break;
 
         case DragEvent.ACTION_DRAG_ENTERED:
           // probably not used
           break;
         case DragEvent.ACTION_DRAG_EXITED:
-          // TODO probably used for edge scrolling
+          // TODO edge scrolling
           break;
       }
     }
