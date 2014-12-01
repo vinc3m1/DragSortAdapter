@@ -1,4 +1,4 @@
-package com.makeramen.rvdnd.util;
+package com.makeramen.dragsortadapter.util;
 import java.text.DecimalFormat;
 
 /**

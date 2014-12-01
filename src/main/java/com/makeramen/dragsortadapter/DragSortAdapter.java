@@ -1,4 +1,4 @@
-package com.makeramen.rvdnd;
+package com.makeramen.dragsortadapter;
 
 import android.graphics.PointF;
 import android.support.v7.widget.RecyclerView;
@@ -6,7 +6,7 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 
-public abstract class DraggableAdapter<VH extends RecyclerView.ViewHolder>
+public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
     extends RecyclerView.Adapter<VH> implements
     View.OnDragListener {
 

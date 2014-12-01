@@ -1,4 +1,4 @@
-package com.makeramen.rvdnd;
+package com.makeramen.dragsortadapter;
 
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -9,10 +9,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.makeramen.rvdnd.util.EnglishNumberToWords;
+import com.makeramen.dragsortadapter.util.EnglishNumberToWords;
 import java.util.List;
 
-public class ExampleAdapter extends DraggableAdapter<ExampleAdapter.MainViewHolder> {
+public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolder> {
 
   private final List<Integer> data;
 
