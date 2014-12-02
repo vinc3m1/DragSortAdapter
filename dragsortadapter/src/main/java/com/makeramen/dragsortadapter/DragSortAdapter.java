@@ -16,6 +16,7 @@
 
 package com.makeramen.dragsortadapter;
 
+import android.content.res.Resources;
 import android.graphics.PointF;
 import android.os.Handler;
 import android.os.Looper;
@@ -29,9 +30,12 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
     extends RecyclerView.Adapter<VH> implements
     View.OnDragListener {
 
+  private final int SCROLL_AMOUNT = (int) (15 / Resources.getSystem().getDisplayMetrics().density);
+
   private long draggingId = RecyclerView.NO_ID;
   private final Handler debounceHandler = new Handler(Looper.getMainLooper());
   private final PointF targetPoint = new PointF();
+  private final PointF lastPoint = new PointF();
 
   public abstract void move(int fromPosition, int toPosition);
 
@@ -54,7 +58,6 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
 
       switch (event.getAction()) {
         case DragEvent.ACTION_DRAG_STARTED:
-          Log.d("vmi", "drag started: " + itemId);
           draggingId = itemId;
           notifyItemChanged(recyclerView.findViewHolderForItemId(itemId).getPosition());
           break;
@@ -73,7 +76,9 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
               @Override public void run() {
                 if (targetPoint.equals(0, 0)) { return; }
 
-                int fromPosition = recyclerView.findViewHolderForItemId(itemId).getPosition();
+                RecyclerView.ViewHolder vh = recyclerView.findViewHolderForItemId(itemId);
+                if (vh == null) { return; }
+                int fromPosition = vh.getPosition();
 
                 View child = recyclerView.findChildViewUnder(targetPoint.x, targetPoint.y);
                 if (child != null) {
@@ -86,13 +91,16 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
               }
             }, recyclerView.getItemAnimator().getMoveDuration());
           }
-          // TODO edge scrolling
 
+          recyclerView.setOnScrollListener(mScrollListener);
+          lastPoint.set(x, y);
+          handleScroll(recyclerView, x, y);
           break;
 
         case DragEvent.ACTION_DRAG_ENDED:
           draggingId = RecyclerView.NO_ID;
           targetPoint.set(0, 0);
+          lastPoint.set(0, 0);
 
           // queue up the show animation until after all move animations are finished
           recyclerView.getItemAnimator().isRunning(
@@ -118,4 +126,42 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
     }
     return true;
   }
+
+  private void handleScroll(RecyclerView recyclerView) {
+    if (!lastPoint.equals(0, 0)) {
+      handleScroll(recyclerView, lastPoint.x, lastPoint.y);
+    }
+  }
+
+  private void handleScroll(RecyclerView recyclerView, float x, float y) {
+    if (y < 200) {
+      Log.d("vmi", "scroll up x:" + x + " y:" + y);
+      debounceHandler.removeCallbacksAndMessages(null);
+      recyclerView.scrollBy(0, -SCROLL_AMOUNT);
+    } else if (y > recyclerView.getHeight() - 200) {
+      Log.d("vmi", "scroll down x:" + x + " y:" + y);
+      debounceHandler.removeCallbacksAndMessages(null);
+      recyclerView.scrollBy(0, SCROLL_AMOUNT);
+    }
+  }
+
+  private RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
+    @Override public void onScrolled(final RecyclerView recyclerView, int dx, int dy) {
+      recyclerView.post(new Runnable() {
+        @Override public void run() {
+          handleScroll(recyclerView);
+        }
+      });
+    }
+
+    @Override public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+      switch (newState) {
+        case RecyclerView.SCROLL_STATE_IDLE:
+          break;
+        case RecyclerView.SCROLL_STATE_DRAGGING:
+        case RecyclerView.SCROLL_STATE_SETTLING:
+          break;
+      }
+    }
+  };
 }

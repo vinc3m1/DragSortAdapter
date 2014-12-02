@@ -19,10 +19,8 @@ package com.makeramen.dragsortadapter.example;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import java.util.ArrayList;
@@ -34,7 +32,7 @@ public class ExampleActivity extends ActionBarActivity {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.main);
+    setContentView(R.layout.activity_example);
     ButterKnife.inject(this);
 
     int dataSize = 100;
@@ -47,8 +45,8 @@ public class ExampleActivity extends ActionBarActivity {
     recyclerView.setAdapter(adapter);
     // IMPORTANT: must set OnDragListener as adapter
     recyclerView.setOnDragListener(adapter);
-    //recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+    recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    //recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
     //recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
     recyclerView.setItemAnimator(new DefaultItemAnimator());
   }

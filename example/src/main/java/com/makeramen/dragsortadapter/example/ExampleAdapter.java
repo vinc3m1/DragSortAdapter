@@ -41,7 +41,7 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
 
   @Override public MainViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    View view = inflater.inflate(R.layout.item_main, parent, false);
+    View view = inflater.inflate(R.layout.item_example, parent, false);
     MainViewHolder holder = new MainViewHolder(view);
     view.setOnClickListener(holder);
     view.setOnLongClickListener(holder);
