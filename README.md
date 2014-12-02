@@ -1,0 +1,4 @@
+DragSortAdapter
+=====
+
+Documentation coming soon...
