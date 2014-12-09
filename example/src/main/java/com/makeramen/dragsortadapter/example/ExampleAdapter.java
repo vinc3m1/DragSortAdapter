@@ -63,6 +63,10 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
     return data.size();
   }
 
+  @Override public int getPositionForId(long id) {
+    return data.indexOf((int) id);
+  }
+
   @Override public void move(int fromPosition, int toPosition) {
     data.add(toPosition, data.remove(fromPosition));
   }

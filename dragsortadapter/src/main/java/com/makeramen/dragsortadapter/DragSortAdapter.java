@@ -35,7 +35,9 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
   private long draggingId = RecyclerView.NO_ID;
   private final Handler debounceHandler = new Handler(Looper.getMainLooper());
   private final PointF targetPoint = new PointF();
-  private final PointF lastPoint = new PointF();
+  private final PointF lastPoint = new PointF(); // used to continue edge scrolling
+
+  public abstract int getPositionForId(long id);
 
   public abstract void move(int fromPosition, int toPosition);
 
@@ -76,9 +78,7 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
               @Override public void run() {
                 if (targetPoint.equals(0, 0)) { return; }
 
-                RecyclerView.ViewHolder vh = recyclerView.findViewHolderForItemId(itemId);
-                if (vh == null) { return; }
-                int fromPosition = vh.getPosition();
+                int fromPosition = getPositionForId(itemId);
 
                 View child = recyclerView.findChildViewUnder(targetPoint.x, targetPoint.y);
                 if (child != null) {
@@ -135,11 +135,9 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
 
   private void handleScroll(RecyclerView recyclerView, float x, float y) {
     if (y < 200) {
-      Log.d("vmi", "scroll up x:" + x + " y:" + y);
       debounceHandler.removeCallbacksAndMessages(null);
       recyclerView.scrollBy(0, -SCROLL_AMOUNT);
     } else if (y > recyclerView.getHeight() - 200) {
-      Log.d("vmi", "scroll down x:" + x + " y:" + y);
       debounceHandler.removeCallbacksAndMessages(null);
       recyclerView.scrollBy(0, SCROLL_AMOUNT);
     }
