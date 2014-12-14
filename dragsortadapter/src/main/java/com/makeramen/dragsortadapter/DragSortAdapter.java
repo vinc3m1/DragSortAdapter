@@ -29,7 +29,7 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
     extends RecyclerView.Adapter<VH> implements
     View.OnDragListener {
 
-  private final int SCROLL_AMOUNT = (int) (15 / Resources.getSystem().getDisplayMetrics().density);
+  private final int SCROLL_AMOUNT = (int) (10 / Resources.getSystem().getDisplayMetrics().density);
 
   private long draggingId = RecyclerView.NO_ID;
   private final Handler debounceHandler = new Handler(Looper.getMainLooper());
