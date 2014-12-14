@@ -70,7 +70,7 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
     data.add(toPosition, data.remove(fromPosition));
   }
 
-  class MainViewHolder extends RecyclerView.ViewHolder implements
+  class MainViewHolder extends DragSortAdapter.ViewHolder implements
       View.OnClickListener, View.OnLongClickListener {
 
     @InjectView(R.id.card) CardView cardView;
@@ -86,8 +86,7 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
     }
 
     @Override public boolean onLongClick(View v) {
-      // IMPORTANT: must use getItemId() for myLocalState
-      v.startDrag(null, new View.DragShadowBuilder(v), getItemId(), 0);
+      startDrag();
       return true;
     }
   }

@@ -17,13 +17,14 @@
 package com.makeramen.dragsortadapter;
 
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
+import java.lang.ref.WeakReference;
 
 public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
     extends RecyclerView.Adapter<VH> implements
@@ -31,13 +32,17 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
 
   private final int SCROLL_AMOUNT = (int) (10 / Resources.getSystem().getDisplayMetrics().density);
 
+  private final WeakReference<RecyclerView> recyclerViewRef;
   private long draggingId = RecyclerView.NO_ID;
   private final Handler debounceHandler = new Handler(Looper.getMainLooper());
   private PointF debouncePoint = null;
   private final PointF targetPoint = new PointF();
   private final PointF lastPoint = new PointF(); // used to continue edge scrolling
+  private DragInfo lastDragInfo;
+  private int scrollState = RecyclerView.SCROLL_STATE_IDLE;
 
   public DragSortAdapter(RecyclerView recyclerView) {
+    this.recyclerViewRef = new WeakReference<>(recyclerView);
     recyclerView.setOnDragListener(this);
     recyclerView.setOnScrollListener(mScrollListener);
     setHasStableIds(true);
@@ -54,15 +59,10 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
   }
 
   @Override public boolean onDrag(View v, DragEvent event) {
-    if (v instanceof RecyclerView) {
+    if (v == recyclerViewRef.get()) {
       final RecyclerView recyclerView = (RecyclerView) v;
-      final long itemId;
-      try {
-        itemId = (long) event.getLocalState();
-      } catch (NullPointerException e) {
-        throw new IllegalArgumentException(
-            "startDrag must be called with myLocalState that is a long of value getItemId()");
-      }
+      final DragInfo dragInfo = (DragInfo) event.getLocalState();
+      final long itemId = dragInfo.itemId;
 
       switch (event.getAction()) {
         case DragEvent.ACTION_DRAG_STARTED:
@@ -118,13 +118,15 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
 
           recyclerView.setOnScrollListener(mScrollListener);
           lastPoint.set(x, y);
-          handleScroll(recyclerView, x, y);
+          lastDragInfo = dragInfo;
+          handleScroll(recyclerView, x, y, dragInfo);
           break;
 
         case DragEvent.ACTION_DRAG_ENDED:
           draggingId = RecyclerView.NO_ID;
           targetPoint.set(0, 0);
           lastPoint.set(0, 0);
+          lastDragInfo = null;
 
           // queue up the show animation until after all move animations are finished
 
@@ -170,22 +172,27 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
   }
 
   private void handleScroll(RecyclerView recyclerView) {
-    if (!lastPoint.equals(0, 0)) {
-      handleScroll(recyclerView, lastPoint.x, lastPoint.y);
+    if (scrollState != RecyclerView.SCROLL_STATE_IDLE) {
+      return;
+    }
+    if (!lastPoint.equals(0, 0) && lastDragInfo != null) {
+      handleScroll(recyclerView, lastPoint.x, lastPoint.y , lastDragInfo);
     }
   }
 
-  private void handleScroll(RecyclerView recyclerView, float x, float y) {
-    if (y < 200) {
+  private void handleScroll(RecyclerView rv, float x, float y, DragInfo dragInfo) {
+
+    if (rv.canScrollVertically(-1) && y < dragInfo.shadowTouchPoint.y) {
       // scroll up
       debounceHandler.removeCallbacksAndMessages(null);
       debouncePoint = null;
-      recyclerView.scrollBy(0, -SCROLL_AMOUNT);
-    } else if (y > recyclerView.getHeight() - 200) {
+      rv.scrollBy(0, -SCROLL_AMOUNT);
+    } else if (rv.canScrollVertically(1)
+        && y > (rv.getHeight() - (dragInfo.shadowSize.y - dragInfo.shadowTouchPoint.y))) {
       // scroll down
       debounceHandler.removeCallbacksAndMessages(null);
       debouncePoint = null;
-      recyclerView.scrollBy(0, SCROLL_AMOUNT);
+      rv.scrollBy(0, SCROLL_AMOUNT);
     }
   }
 
@@ -199,8 +206,10 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
     }
 
     @Override public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+      scrollState = newState;
       switch (newState) {
         case RecyclerView.SCROLL_STATE_IDLE:
+          handleScroll(recyclerView);
           break;
         case RecyclerView.SCROLL_STATE_DRAGGING:
         case RecyclerView.SCROLL_STATE_SETTLING:
@@ -208,4 +217,36 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
       }
     }
   };
+
+  public static class DragInfo {
+    final long itemId;
+    final Point shadowSize;
+    final Point shadowTouchPoint;
+
+    public DragInfo(long itemId, Point shadowSize, Point shadowTouchPoint) {
+      this.itemId = itemId;
+      this.shadowSize = shadowSize;
+      this.shadowTouchPoint = shadowTouchPoint;
+    }
+  }
+
+  public static abstract class ViewHolder extends RecyclerView.ViewHolder {
+    public ViewHolder(View itemView) {
+      super(itemView);
+    }
+
+    public void startDrag() {
+      startDrag(new View.DragShadowBuilder(itemView));
+    }
+
+    public void startDrag(View.DragShadowBuilder dragShadowBuilder) {
+
+      Point shadowSize = new Point();
+      Point shadowTouchPoint = new Point();
+      dragShadowBuilder.onProvideShadowMetrics(shadowSize, shadowTouchPoint);
+
+      itemView.startDrag(null, dragShadowBuilder,
+          new DragInfo(getItemId(), shadowSize, shadowTouchPoint), 0);
+    }
+  }
 }
