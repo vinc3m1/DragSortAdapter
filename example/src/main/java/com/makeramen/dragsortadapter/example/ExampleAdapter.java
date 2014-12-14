@@ -33,10 +33,9 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
 
   private final List<Integer> data;
 
-  public ExampleAdapter(List<Integer> data) {
-    super();
+  public ExampleAdapter(RecyclerView recyclerView, List<Integer> data) {
+    super(recyclerView);
     this.data = data;
-    setHasStableIds(true); // IMPORTANT: required for drag and drop
   }
 
   @Override public MainViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

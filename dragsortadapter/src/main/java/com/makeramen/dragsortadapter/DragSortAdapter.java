@@ -37,6 +37,12 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
   private final PointF targetPoint = new PointF();
   private final PointF lastPoint = new PointF(); // used to continue edge scrolling
 
+  public DragSortAdapter(RecyclerView recyclerView) {
+    recyclerView.setOnDragListener(this);
+    recyclerView.setOnScrollListener(mScrollListener);
+    setHasStableIds(true);
+  }
+
   public abstract int getPositionForId(long id);
 
   public abstract void move(int fromPosition, int toPosition);
@@ -130,7 +136,7 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
                   RecyclerView.ViewHolder vh = recyclerView.findViewHolderForItemId(itemId);
                   if (vh != null && vh.getPosition() != position) {
                     // if positions don't match, there's still an outstanding move animation
-                    // so we reschedule the notifyItemChanged until after that
+                    // so we try to reschedule the notifyItemChanged until after that
                     recyclerView.post(new Runnable() {
                       @Override public void run() {
                         recyclerView.getItemAnimator().isRunning(
