@@ -67,16 +67,16 @@ uploadArchives {
 
     pom {
       project {
-        name 'RoundedImageView'
+        name 'DragSortAdapter'
         packaging 'aar'
 
-        description 'Fast ImageView with support for rounded corners and borders'
-        url 'https://github.com/vinc3m1/RoundedImageView'
+        description 'Drag and drop re-ordering adapter for RecyclerView'
+        url 'https://github.com/vinc3m1/DragSortAdapter'
 
         scm {
-          url 'scm:git@github.com:vinc3m1/RoundedImageView.git'
-          connection 'scm:git@github.com:vinc3m1/RoundedImageView.git'
-          developerConnection 'scm:git@github.com:vinc3m1/RoundedImageView.git'
+          url 'scm:git@github.com:vinc3m1/DragSortAdapter.git'
+          connection 'scm:git@github.com:vinc3m1/DragSortAdapter.git'
+          developerConnection 'scm:git@github.com:vinc3m1/DragSortAdapter.git'
         }
 
         licenses {
