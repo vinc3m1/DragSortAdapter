@@ -33,7 +33,7 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
 
   private static final String TAG = DragSortAdapter.class.getSimpleName();
 
-  private final int SCROLL_AMOUNT = (int) (10 / Resources.getSystem().getDisplayMetrics().density);
+  private final int SCROLL_AMOUNT = (int) (2 * Resources.getSystem().getDisplayMetrics().density);
 
   private final WeakReference<RecyclerView> recyclerViewRef;
   private long draggingId = RecyclerView.NO_ID;
@@ -253,8 +253,8 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
 
     public void startDrag() {
       Point touchPoint = getLastTouchPoint();
-      touchPoint.x -= itemView.getX();
-      touchPoint.y -= itemView.getY();
+      touchPoint.x = Math.max(touchPoint.x - (int) itemView.getX(), 0);
+      touchPoint.y = Math.max(touchPoint.y - (int) itemView.getY(), 0);
       startDrag(new DragSortShadowBuilder(itemView, touchPoint));
     }
 
