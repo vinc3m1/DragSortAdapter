@@ -98,7 +98,7 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
             toPosition = recyclerView.getChildViewHolder(child).getPosition();
           }
 
-          if (toPosition > 0 && fromPosition != toPosition) {
+          if (toPosition >= 0 && fromPosition != toPosition) {
             RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
 
             boolean attach = false;

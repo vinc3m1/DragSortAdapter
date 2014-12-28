@@ -19,6 +19,7 @@ package com.makeramen.dragsortadapter.example;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import butterknife.ButterKnife;
@@ -43,9 +44,9 @@ public class ExampleActivity extends ActionBarActivity {
 
     recyclerView.setAdapter(new ExampleAdapter(recyclerView, data));
 
-    //recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    recyclerView.setLayoutManager(new LinearLayoutManager(this));
     //recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-    recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
+    //recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
     recyclerView.setItemAnimator(new DefaultItemAnimator());
   }
 }
