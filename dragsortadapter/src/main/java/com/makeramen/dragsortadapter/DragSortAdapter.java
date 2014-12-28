@@ -23,12 +23,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.DragEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import java.lang.ref.WeakReference;
 
 public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
     extends RecyclerView.Adapter<VH> implements
-    View.OnDragListener {
+    View.OnDragListener, RecyclerView.OnItemTouchListener {
+
+  private static final String TAG = DragSortAdapter.class.getSimpleName();
 
   private final int SCROLL_AMOUNT = (int) (10 / Resources.getSystem().getDisplayMetrics().density);
 
@@ -38,6 +41,7 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
   private PointF debouncePoint = null;
   private final PointF targetPoint = new PointF();
   private final PointF lastPoint = new PointF(); // used to continue edge scrolling
+  private final Point lastTouchPoint = new Point(); // used to continue edge scrolling
   private DragInfo lastDragInfo;
   private int scrollState = RecyclerView.SCROLL_STATE_IDLE;
 
@@ -45,6 +49,7 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
     this.recyclerViewRef = new WeakReference<>(recyclerView);
     recyclerView.setOnDragListener(this);
     recyclerView.setOnScrollListener(mScrollListener);
+    recyclerView.addOnItemTouchListener(this);
     setHasStableIds(true);
   }
 
@@ -56,6 +61,17 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
 
   public long getDraggingId() {
     return draggingId;
+  }
+
+  @Override public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+    lastTouchPoint.set((int) e.getX(), (int) e.getY());
+    return false;
+  }
+
+  @Override public void onTouchEvent(RecyclerView rv, MotionEvent e) { }
+
+  public Point getLastTouchPoint() {
+    return new Point(lastTouchPoint.x, lastTouchPoint.y);
   }
 
   @Override public boolean onDrag(View v, DragEvent event) {
@@ -218,7 +234,7 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
     }
   };
 
-  public static class DragInfo {
+  private static final class DragInfo {
     final long itemId;
     final Point shadowSize;
     final Point shadowTouchPoint;
@@ -230,13 +246,16 @@ public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
     }
   }
 
-  public static abstract class ViewHolder extends RecyclerView.ViewHolder {
+  public abstract class ViewHolder extends RecyclerView.ViewHolder {
     public ViewHolder(View itemView) {
       super(itemView);
     }
 
     public void startDrag() {
-      startDrag(new View.DragShadowBuilder(itemView));
+      Point touchPoint = getLastTouchPoint();
+      touchPoint.x -= itemView.getX();
+      touchPoint.y -= itemView.getY();
+      startDrag(new DragSortShadowBuilder(itemView, touchPoint));
     }
 
     public void startDrag(View.DragShadowBuilder dragShadowBuilder) {

@@ -16,6 +16,7 @@
 
 package com.makeramen.dragsortadapter.example;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -30,6 +31,8 @@ import com.makeramen.dragsortadapter.example.util.EnglishNumberToWords;
 import java.util.List;
 
 public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolder> {
+
+  public static final String TAG = ExampleAdapter.class.getSimpleName();
 
   private final List<Integer> data;
 
@@ -81,11 +84,11 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
       ButterKnife.inject(this, itemView);
     }
 
-    @Override public void onClick(View v) {
-      Log.d("ExampleAdapter", text.getText() + " clicked!");
+    @Override public void onClick(@NonNull View v) {
+      Log.d(TAG, text.getText() + " clicked!");
     }
 
-    @Override public boolean onLongClick(View v) {
+    @Override public boolean onLongClick(@NonNull View v) {
       startDrag();
       return true;
     }
