@@ -27,7 +27,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import java.lang.ref.WeakReference;
 
-public abstract class DragSortAdapter<VH extends RecyclerView.ViewHolder>
+public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
     extends RecyclerView.Adapter<VH> implements
     View.OnDragListener, RecyclerView.OnItemTouchListener {
 
