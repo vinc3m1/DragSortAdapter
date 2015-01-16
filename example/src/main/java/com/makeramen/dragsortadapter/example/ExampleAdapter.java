@@ -16,8 +16,8 @@
 
 package com.makeramen.dragsortadapter.example;
 
+import android.graphics.Point;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +27,7 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.makeramen.dragsortadapter.DragSortAdapter;
+import com.makeramen.dragsortadapter.NoForegroundShadowBuilder;
 import com.makeramen.dragsortadapter.example.util.EnglishNumberToWords;
 import java.util.List;
 
@@ -54,7 +55,12 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
     int itemId = data.get(position);
     holder.text.setText(EnglishNumberToWords.convert(itemId));
     // NOTE: check for getDraggingId() match to set an "invisible space" while dragging
-    holder.cardView.setVisibility(getDraggingId() == itemId ? View.INVISIBLE : View.VISIBLE);
+    Log.d(TAG, "Vmi getDraggingId:" + getDraggingId() + "itemid: " + itemId);
+    int visibility = getDraggingId() == itemId ? View.INVISIBLE : View.VISIBLE;
+    if (visibility != holder.container.getVisibility()) {
+      holder.container.setVisibility(visibility);
+      holder.container.postInvalidate();
+    }
   }
 
   @Override public long getItemId(int position) {
@@ -76,7 +82,7 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
   class MainViewHolder extends DragSortAdapter.ViewHolder implements
       View.OnClickListener, View.OnLongClickListener {
 
-    @InjectView(R.id.card) CardView cardView;
+    @InjectView(R.id.container) ViewGroup container;
     @InjectView(R.id.text) TextView text;
 
     public MainViewHolder(View itemView) {
@@ -91,6 +97,10 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
     @Override public boolean onLongClick(@NonNull View v) {
       startDrag();
       return true;
+    }
+
+    @Override public View.DragShadowBuilder getShadowBuilder(View itemView, Point touchPoint) {
+      return new NoForegroundShadowBuilder(itemView, touchPoint);
     }
   }
 }

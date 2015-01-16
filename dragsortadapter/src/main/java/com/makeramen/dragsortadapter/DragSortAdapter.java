@@ -241,8 +241,8 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
 
     public DragInfo(long itemId, Point shadowSize, Point shadowTouchPoint) {
       this.itemId = itemId;
-      this.shadowSize = shadowSize;
-      this.shadowTouchPoint = shadowTouchPoint;
+      this.shadowSize = new Point(shadowSize);
+      this.shadowTouchPoint = new Point(shadowTouchPoint);
     }
   }
 
@@ -255,7 +255,11 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
       Point touchPoint = getLastTouchPoint();
       touchPoint.x = Math.max(touchPoint.x - (int) itemView.getX(), 0);
       touchPoint.y = Math.max(touchPoint.y - (int) itemView.getY(), 0);
-      startDrag(new DragSortShadowBuilder(itemView, touchPoint));
+      startDrag(getShadowBuilder(itemView, touchPoint));
+    }
+
+    public View.DragShadowBuilder getShadowBuilder(View itemView, Point touchPoint) {
+      return new DragSortShadowBuilder(itemView, touchPoint);
     }
 
     public void startDrag(View.DragShadowBuilder dragShadowBuilder) {
@@ -266,6 +270,8 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
 
       itemView.startDrag(null, dragShadowBuilder,
           new DragInfo(getItemId(), shadowSize, shadowTouchPoint), 0);
+
+      notifyItemChanged(getPosition());
     }
   }
 }

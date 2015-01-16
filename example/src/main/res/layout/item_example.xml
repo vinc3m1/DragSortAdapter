@@ -1,28 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<android.support.v7.widget.CardView
+    android:id="@+id/container"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardCornerRadius="0dp"
     >
-  <android.support.v7.widget.CardView
-      xmlns:card_view="http://schemas.android.com/apk/res-auto"
-      android:id="@+id/card"
-      android:layout_width="match_parent"
+  <TextView
+      android:id="@+id/text"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      card_view:cardUseCompatPadding="true"
-      >
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:padding="?android:attr/listPreferredItemPaddingLeft"
-        >
-      <TextView
-          android:id="@+id/text"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:textAppearance="?android:attr/textAppearanceListItem"
-          />
-    </FrameLayout>
-  </android.support.v7.widget.CardView>
-</FrameLayout>
+      android:padding="?android:attr/listPreferredItemPaddingLeft"
+      android:textAppearance="?android:attr/textAppearanceListItem"
+      />
+</android.support.v7.widget.CardView>
