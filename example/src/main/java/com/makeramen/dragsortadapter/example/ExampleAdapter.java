@@ -51,16 +51,12 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
     return holder;
   }
 
-  @Override public void onBindViewHolder(MainViewHolder holder, int position) {
+  @Override public void onBindViewHolder(final MainViewHolder holder, final int position) {
     int itemId = data.get(position);
     holder.text.setText(EnglishNumberToWords.convert(itemId));
     // NOTE: check for getDraggingId() match to set an "invisible space" while dragging
-    Log.d(TAG, "Vmi getDraggingId:" + getDraggingId() + "itemid: " + itemId);
-    int visibility = getDraggingId() == itemId ? View.INVISIBLE : View.VISIBLE;
-    if (visibility != holder.container.getVisibility()) {
-      holder.container.setVisibility(visibility);
-      holder.container.postInvalidate();
-    }
+    holder.container.setVisibility(getDraggingId() == itemId ? View.INVISIBLE : View.VISIBLE);
+    holder.container.postInvalidate();
   }
 
   @Override public long getItemId(int position) {
