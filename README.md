@@ -19,11 +19,13 @@ dependencies {
 Override `DragSortAdapter<T extends DragSortAdapter.ViewHolder>`, see [ExampleAdapter.java](https://github.com/vinc3m1/DragSortAdapter/blob/master/example/src/main/java/com/makeramen/dragsortadapter/example/ExampleAdapter.java):
 required functions:
 ```java
-  public abstract int getPositionForId(long id);
+// this function should be reasonable performant as it gets called a lot on the UI thread
+public abstract int getPositionForId(long id);
+  
+// this needs to re-order the positions **live** during dragging
+public abstract void move(int fromPosition, int toPosition);
 
-  public abstract void move(int fromPosition, int toPosition);
-
-  public void onDrop() { }
+public void onDrop() { /* not required but you probably want to override this to save the re-ordering after drop event */ }
 ```
 
 Set adapter in code:
