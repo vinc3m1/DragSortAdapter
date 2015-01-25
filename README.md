@@ -16,17 +16,27 @@ dependencies {
 }
 ```
 
-Override DragSortAdapter:
+Override `DragSortAdapter<T extends DragSortAdapter.ViewHolder>`, see [ExampleAdapter.java](https://github.com/vinc3m1/DragSortAdapter/blob/master/example/src/main/java/com/makeramen/dragsortadapter/example/ExampleAdapter.java):
+required functions:
+```java
+  public abstract int getPositionForId(long id);
+
+  public abstract void move(int fromPosition, int toPosition);
+
+  public void onDrop() { }
 ```
-public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolder> {
 
-
-```
-
-
-Set in code:
+Set adapter in code:
 ```java
 recyclerView.setAdapter(new ExampleAdapter(recyclerView));
+```
+
+Call `startDrag()` when you want to start dragging (e.g. [onLongClick](https://github.com/vinc3m1/DragSortAdapter/blob/master/example/src/main/java/com/makeramen/dragsortadapter/example/ExampleAdapter.java#L93)):
+```java
+    @Override public boolean onLongClick(@NonNull View v) {
+      startDrag();
+      return true;
+    }
 ```
 
 Works with any LayoutManager
