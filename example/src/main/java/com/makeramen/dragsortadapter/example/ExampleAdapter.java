@@ -71,8 +71,9 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
     return data.indexOf((int) id);
   }
 
-  @Override public void move(int fromPosition, int toPosition) {
+  @Override public boolean move(int fromPosition, int toPosition) {
     data.add(toPosition, data.remove(fromPosition));
+    return true;
   }
 
   class MainViewHolder extends DragSortAdapter.ViewHolder implements
