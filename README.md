@@ -4,7 +4,7 @@ DragSortAdapter
 Drag and Drop adapter implementation for RecyclerView. Targeted to support any LayoutManager
 and ItemAnimator.
 
-Still work in progress, API may change.
+**Note: This is an advanced library meant to be flexible and customizable which leads to more complexity in integration. It is not meant to be a simple drop-in.** If you need even more customization I suggest exploring the source and copying relevant code that you need.
 
 Usage
 -----
@@ -23,9 +23,10 @@ required functions:
 public abstract int getPositionForId(long id);
   
 // this needs to re-order the positions **live** during dragging
-public abstract void move(int fromPosition, int toPosition);
+public abstract boolean move(int fromPosition, int toPosition);
 
-public void onDrop() { /* not required but you probably want to override this to save the re-ordering after drop event */ }
+// not required but you probably want to override this to save the re-ordering after drop event
+public void onDrop() { }
 ```
 
 Set adapter in code:
