@@ -13,7 +13,7 @@ Usage
 Add Snapshot repository and add to dependencies:
 ```
 dependencies {
-  compile 'com.makeramen:dragsortadapter:1.0.0'
+  compile 'com.makeramen:dragsortadapter:1.0.1'
 }
 ```
 
