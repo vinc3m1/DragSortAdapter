@@ -1,5 +1,6 @@
 DragSortAdapter
 =====
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DragSortAdapter-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1424)
 
 Drag and Drop adapter implementation for RecyclerView. Targeted to support any LayoutManager
 and ItemAnimator.
