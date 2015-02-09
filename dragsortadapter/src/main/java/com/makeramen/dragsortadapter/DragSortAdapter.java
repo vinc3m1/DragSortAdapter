@@ -143,6 +143,12 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
                   if (child != null) {
                     int toPosition = recyclerView.getChildViewHolder(child).getPosition();
                     if (move(fromPosition, toPosition)) {
+
+                        //Fix List drag and scroll does weird things when the first visible item moves
+                        if(fromPosition==0 || (fromPosition==1 && toPosition==0)) {
+                            recyclerView.scrollToPosition(0);
+                        }
+
                       notifyItemMoved(fromPosition, toPosition);
                     }
                   }
