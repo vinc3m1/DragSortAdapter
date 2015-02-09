@@ -55,7 +55,7 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
 
   /**
    * This should be reasonably performant as it gets called a lot on the UI thread.
-   * @param id
+   *
    * @return position of the item with the given id
    */
   public abstract int getPositionForId(long id);
@@ -63,8 +63,7 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
   /**
    * This is called during the dragging event, the actual positions of the views and data need to
    * change in the adapter for the drag animations to look correct.
-   * @param fromPosition
-   * @param toPosition
+   *
    * @return true if the position can be moved from fromPosition to toPosition
    */
   public abstract boolean move(int fromPosition, int toPosition);
@@ -77,6 +76,7 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
   /**
    * You probably want to use this to set the currently dragging item to blank while it's being
    * dragged
+   *
    * @return the id of the item currently being dragged or {@link RecyclerView.NO_ID } if not being
    * dragged
    */
@@ -143,6 +143,12 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
                   if (child != null) {
                     int toPosition = recyclerView.getChildViewHolder(child).getPosition();
                     if (move(fromPosition, toPosition)) {
+
+                      if (fromPosition == 0 || toPosition == 0) {
+                        // fix for weird scrolling when animating first item
+                        recyclerView.scrollToPosition(0);
+                      }
+
                       notifyItemMoved(fromPosition, toPosition);
                     }
                   }
@@ -214,7 +220,7 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
       return;
     }
     if (!lastPoint.equals(0, 0) && lastDragInfo != null) {
-      handleScroll(recyclerView, lastPoint.x, lastPoint.y , lastDragInfo);
+      handleScroll(recyclerView, lastPoint.x, lastPoint.y, lastDragInfo);
     }
   }
 
