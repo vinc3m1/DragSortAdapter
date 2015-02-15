@@ -1,3 +1,6 @@
 <resources>
-    <string name="app_name">DragSortAdapter</string>
+  <string name="app_name">DragSortAdapter</string>
+  <string name="action_layout_linear">LinearLayoutManager</string>
+  <string name="action_layout_grid">GridLayoutManager</string>
+  <string name="action_layout_staggered">StaggeredLayoutManager</string>
 </resources>

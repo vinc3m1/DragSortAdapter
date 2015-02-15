@@ -19,8 +19,13 @@ package com.makeramen.dragsortadapter.example;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import java.util.ArrayList;
@@ -47,5 +52,30 @@ public class ExampleActivity extends ActionBarActivity {
     //recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
     //recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
     recyclerView.setItemAnimator(new DefaultItemAnimator());
+  }
+
+  @Override public boolean onCreateOptionsMenu(Menu menu) {
+    super.onCreateOptionsMenu(menu);
+    getMenuInflater().inflate(R.menu.example, menu);
+    return true;
+  }
+
+  @Override public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.action_layout_grid:
+        item.setChecked(true);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        break;
+      case R.id.action_layout_linear:
+        item.setChecked(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        break;
+      case R.id.action_layout_staggered:
+        item.setChecked(true);
+        recyclerView.setLayoutManager(
+            new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
+        break;
+    }
+    return super.onOptionsItemSelected(item);
   }
 }
