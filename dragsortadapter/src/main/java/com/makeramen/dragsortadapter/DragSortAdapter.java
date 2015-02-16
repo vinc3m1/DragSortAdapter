@@ -276,9 +276,9 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
 
   public static abstract class ViewHolder extends RecyclerView.ViewHolder {
 
-    final DragSortAdapter adapter;
+    final DragSortAdapter<?> adapter;
 
-    public ViewHolder(DragSortAdapter dragSortAdapter, View itemView) {
+    public ViewHolder(DragSortAdapter<?> dragSortAdapter, View itemView) {
       super(itemView);
       this.adapter = dragSortAdapter;
     }
