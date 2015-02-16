@@ -274,13 +274,17 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
     }
   }
 
-  public abstract class ViewHolder extends RecyclerView.ViewHolder {
-    public ViewHolder(View itemView) {
+  public static abstract class ViewHolder extends RecyclerView.ViewHolder {
+
+    final DragSortAdapter adapter;
+
+    public ViewHolder(DragSortAdapter dragSortAdapter, View itemView) {
       super(itemView);
+      this.adapter = dragSortAdapter;
     }
 
     public void startDrag() {
-      Point touchPoint = getLastTouchPoint();
+      Point touchPoint = adapter.getLastTouchPoint();
       touchPoint.x = Math.max(touchPoint.x - (int) itemView.getX(), 0);
       touchPoint.y = Math.max(touchPoint.y - (int) itemView.getY(), 0);
       startDrag(getShadowBuilder(itemView, touchPoint));
@@ -299,7 +303,7 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
       itemView.startDrag(null, dragShadowBuilder,
           new DragInfo(getItemId(), shadowSize, shadowTouchPoint), 0);
 
-      notifyItemChanged(getPosition());
+      adapter.notifyItemChanged(getPosition());
     }
   }
 }

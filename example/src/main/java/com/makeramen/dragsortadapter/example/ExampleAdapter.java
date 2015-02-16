@@ -45,7 +45,7 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
   @Override public MainViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     View view = inflater.inflate(R.layout.item_example, parent, false);
-    MainViewHolder holder = new MainViewHolder(view);
+    MainViewHolder holder = new MainViewHolder(this, view);
     view.setOnClickListener(holder);
     view.setOnLongClickListener(holder);
     return holder;
@@ -76,14 +76,14 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
     return true;
   }
 
-  class MainViewHolder extends DragSortAdapter.ViewHolder implements
+  static class MainViewHolder extends DragSortAdapter.ViewHolder implements
       View.OnClickListener, View.OnLongClickListener {
 
     @InjectView(R.id.container) ViewGroup container;
     @InjectView(R.id.text) TextView text;
 
-    public MainViewHolder(View itemView) {
-      super(itemView);
+    public MainViewHolder(DragSortAdapter adapter, View itemView) {
+      super(adapter, itemView);
       ButterKnife.inject(this, itemView);
     }
 
