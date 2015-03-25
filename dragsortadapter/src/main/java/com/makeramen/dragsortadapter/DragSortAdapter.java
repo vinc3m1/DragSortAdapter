@@ -96,6 +96,7 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
   }
 
   @Override public boolean onDrag(View v, DragEvent event) {
+    if(!(event.getLocalState() instanceof DragInfo)) return false;
     if (v == recyclerViewRef.get()) {
       final RecyclerView recyclerView = (RecyclerView) v;
       final DragInfo dragInfo = (DragInfo) event.getLocalState();
