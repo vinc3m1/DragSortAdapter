@@ -96,122 +96,122 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
   }
 
   @Override public boolean onDrag(View v, DragEvent event) {
-    if(!(event.getLocalState() instanceof DragInfo)) return false;
-    if (v == recyclerViewRef.get()) {
-      final RecyclerView recyclerView = (RecyclerView) v;
-      final DragInfo dragInfo = (DragInfo) event.getLocalState();
-      final long itemId = dragInfo.itemId;
+    if (v != recyclerViewRef.get() || !(event.getLocalState() instanceof DragInfo)) {
+      return false;
+    }
+    final RecyclerView recyclerView = (RecyclerView) v;
+    final DragInfo dragInfo = (DragInfo) event.getLocalState();
+    final long itemId = dragInfo.itemId;
 
-      switch (event.getAction()) {
-        case DragEvent.ACTION_DRAG_STARTED:
-          draggingId = itemId;
-          notifyItemChanged(recyclerView.findViewHolderForItemId(itemId).getPosition());
-          break;
+    switch (event.getAction()) {
+      case DragEvent.ACTION_DRAG_STARTED:
+        draggingId = itemId;
+        notifyItemChanged(recyclerView.findViewHolderForItemId(itemId).getPosition());
+        break;
 
-        case DragEvent.ACTION_DRAG_LOCATION:
-          float x = event.getX();
-          float y = event.getY();
+      case DragEvent.ACTION_DRAG_LOCATION:
+        float x = event.getX();
+        float y = event.getY();
 
-          int fromPosition = getPositionForId(itemId);
-          int toPosition = -1;
+        int fromPosition = getPositionForId(itemId);
+        int toPosition = -1;
 
-          View child = recyclerView.findChildViewUnder(event.getX(), event.getY());
-          if (child != null) {
-            toPosition = recyclerView.getChildViewHolder(child).getPosition();
+        View child = recyclerView.findChildViewUnder(event.getX(), event.getY());
+        if (child != null) {
+          toPosition = recyclerView.getChildViewHolder(child).getPosition();
+        }
+
+        if (toPosition >= 0 && fromPosition != toPosition) {
+          RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
+
+          boolean attach = false;
+          if (debouncePoint == null) {
+            attach = true;
+            debouncePoint = new PointF();
           }
+          debouncePoint.x = x;
+          debouncePoint.y = y;
 
-          if (toPosition >= 0 && fromPosition != toPosition) {
-            RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
+          if (attach) {
+            animator.isRunning(new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
+              @Override public void onAnimationsFinished() {
+                if (debouncePoint == null) {
+                  return;
+                }
 
-            boolean attach = false;
-            if (debouncePoint == null) {
-              attach = true;
-              debouncePoint = new PointF();
-            }
-            debouncePoint.x = x;
-            debouncePoint.y = y;
+                int fromPosition = getPositionForId(itemId);
 
-            if (attach) {
-              animator.isRunning(new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
-                @Override public void onAnimationsFinished() {
-                  if (debouncePoint == null) {
-                    return;
-                  }
+                View child = recyclerView.findChildViewUnder(debouncePoint.x, debouncePoint.y);
+                if (child != null) {
+                  int toPosition = recyclerView.getChildViewHolder(child).getPosition();
+                  if (move(fromPosition, toPosition)) {
 
-                  int fromPosition = getPositionForId(itemId);
-
-                  View child = recyclerView.findChildViewUnder(debouncePoint.x, debouncePoint.y);
-                  if (child != null) {
-                    int toPosition = recyclerView.getChildViewHolder(child).getPosition();
-                    if (move(fromPosition, toPosition)) {
-
-                      if (fromPosition == 0 || toPosition == 0) {
-                        // fix for weird scrolling when animating first item
-                        recyclerView.scrollToPosition(0);
-                      }
-
-                      notifyItemMoved(fromPosition, toPosition);
+                    if (fromPosition == 0 || toPosition == 0) {
+                      // fix for weird scrolling when animating first item
+                      recyclerView.scrollToPosition(0);
                     }
-                  }
 
-                  // reset so we know to attach listener again next time
-                  debouncePoint = null;
+                    notifyItemMoved(fromPosition, toPosition);
+                  }
                 }
-              });
-            }
+
+                // reset so we know to attach listener again next time
+                debouncePoint = null;
+              }
+            });
           }
+        }
 
-          recyclerView.setOnScrollListener(mScrollListener);
-          lastPoint.set(x, y);
-          lastDragInfo = dragInfo;
-          handleScroll(recyclerView, x, y, dragInfo);
-          break;
+        recyclerView.setOnScrollListener(mScrollListener);
+        lastPoint.set(x, y);
+        lastDragInfo = dragInfo;
+        handleScroll(recyclerView, x, y, dragInfo);
+        break;
 
-        case DragEvent.ACTION_DRAG_ENDED:
-          draggingId = RecyclerView.NO_ID;
-          targetPoint.set(0, 0);
-          lastPoint.set(0, 0);
-          lastDragInfo = null;
+      case DragEvent.ACTION_DRAG_ENDED:
+        draggingId = RecyclerView.NO_ID;
+        targetPoint.set(0, 0);
+        lastPoint.set(0, 0);
+        lastDragInfo = null;
 
-          // queue up the show animation until after all move animations are finished
+        // queue up the show animation until after all move animations are finished
 
-          recyclerView.getItemAnimator()
-              .isRunning(new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
-                @Override public void onAnimationsFinished() {
-                  int position = getPositionForId(itemId);
+        recyclerView.getItemAnimator()
+            .isRunning(new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
+              @Override public void onAnimationsFinished() {
+                int position = getPositionForId(itemId);
 
-                  RecyclerView.ViewHolder vh = recyclerView.findViewHolderForItemId(itemId);
-                  if (vh != null && vh.getPosition() != position) {
-                    // if positions don't match, there's still an outstanding move animation
-                    // so we try to reschedule the notifyItemChanged until after that
-                    recyclerView.post(new Runnable() {
-                      @Override public void run() {
-                        recyclerView.getItemAnimator().isRunning(
-                            new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
-                              @Override public void onAnimationsFinished() {
-                                notifyItemChanged(getPositionForId(itemId));
-                              }
-                            });
-                      }
-                    });
-                  } else {
-                    notifyItemChanged(getPositionForId(itemId));
-                  }
+                RecyclerView.ViewHolder vh = recyclerView.findViewHolderForItemId(itemId);
+                if (vh != null && vh.getPosition() != position) {
+                  // if positions don't match, there's still an outstanding move animation
+                  // so we try to reschedule the notifyItemChanged until after that
+                  recyclerView.post(new Runnable() {
+                    @Override public void run() {
+                      recyclerView.getItemAnimator().isRunning(
+                          new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
+                            @Override public void onAnimationsFinished() {
+                              notifyItemChanged(getPositionForId(itemId));
+                            }
+                          });
+                    }
+                  });
+                } else {
+                  notifyItemChanged(getPositionForId(itemId));
                 }
-              });
-          break;
+              }
+            });
+        break;
 
-        case DragEvent.ACTION_DROP:
-          onDrop();
-          break;
+      case DragEvent.ACTION_DROP:
+        onDrop();
+        break;
 
-        case DragEvent.ACTION_DRAG_ENTERED:
-          // probably not used?
-          break;
-        case DragEvent.ACTION_DRAG_EXITED:
-          // TODO edge scrolling
-          break;
-      }
+      case DragEvent.ACTION_DRAG_ENTERED:
+        // probably not used?
+        break;
+      case DragEvent.ACTION_DRAG_EXITED:
+        // TODO edge scrolling
+        break;
     }
     return true;
   }
