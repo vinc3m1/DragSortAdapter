@@ -6,12 +6,12 @@ def sonatypeUsername = project.hasProperty('sonatypeUsername') ? sonatypeUsernam
 def sonatypePassword = project.hasProperty('sonatypePassword') ? sonatypePassword : ""
 
 android {
-  compileSdkVersion 21
-  buildToolsVersion "21.1.2"
+  compileSdkVersion 22
+  buildToolsVersion "22.0.1"
 
   defaultConfig {
     minSdkVersion 14
-    targetSdkVersion 21
+    targetSdkVersion 22
     versionCode 1
     versionName version
   }
@@ -23,8 +23,8 @@ android {
 }
 
 dependencies {
-  provided 'com.android.support:recyclerview-v7:21.0.3'
-  provided 'com.android.support:appcompat-v7:21.0.3'
+  compile 'com.android.support:recyclerview-v7:22.0.0'
+  compile 'com.android.support:appcompat-v7:22.0.0'
 }
 
 task androidJavadocs(type: Javadoc) {
