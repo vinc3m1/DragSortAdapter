@@ -14,7 +14,7 @@ Usage
 Add Snapshot repository and add to dependencies:
 ```
 dependencies {
-  compile 'com.makeramen:dragsortadapter:1.0.2'
+  compile 'com.makeramen:dragsortadapter:X.X.X'
 }
 ```
 
