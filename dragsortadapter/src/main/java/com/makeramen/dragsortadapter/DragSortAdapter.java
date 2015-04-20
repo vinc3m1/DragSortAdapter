@@ -227,18 +227,38 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
 
   private void handleScroll(RecyclerView rv, float x, float y, DragInfo dragInfo) {
 
-    if (rv.canScrollVertically(-1) && y < dragInfo.shadowTouchPoint.y) {
-      // scroll up
-      debounceHandler.removeCallbacksAndMessages(null);
-      debouncePoint = null;
-      rv.scrollBy(0, -SCROLL_AMOUNT);
-    } else if (rv.canScrollVertically(1)
-        && y > (rv.getHeight() - (dragInfo.shadowSize.y - dragInfo.shadowTouchPoint.y))) {
-      // scroll down
-      debounceHandler.removeCallbacksAndMessages(null);
-      debouncePoint = null;
-      rv.scrollBy(0, SCROLL_AMOUNT);
-    }
+   //when the layout orientation is horizontal
+      if (rv.getLayoutManager().canScrollHorizontally()) {
+
+          if (rv.canScrollHorizontally(-1) && x < dragInfo.shadowTouchPoint.x) {
+              // scroll up
+              debounceHandler.removeCallbacksAndMessages(null);
+              debouncePoint = null;
+              rv.scrollBy(-SCROLL_AMOUNT, 0);
+          } else if (rv.canScrollHorizontally(1)
+                  && x > (rv.getWidth() - (dragInfo.shadowSize.x - dragInfo.shadowTouchPoint.x))) {
+              // scroll down
+              debounceHandler.removeCallbacksAndMessages(null);
+              debouncePoint = null;
+              rv.scrollBy(SCROLL_AMOUNT, 0);
+          }
+      } else if (rv.getLayoutManager().canScrollVertically()) {
+
+          //when the layout orientation is vertical
+          if (rv.canScrollVertically(-1) && y < dragInfo.shadowTouchPoint.y) {
+              // scroll up
+              debounceHandler.removeCallbacksAndMessages(null);
+              debouncePoint = null;
+              rv.scrollBy(0, -SCROLL_AMOUNT);
+          } else if (rv.canScrollVertically(1)
+                  && y > (rv.getHeight() - (dragInfo.shadowSize.y - dragInfo.shadowTouchPoint.y))) {
+              // scroll down
+              debounceHandler.removeCallbacksAndMessages(null);
+              debouncePoint = null;
+              rv.scrollBy(0, SCROLL_AMOUNT);
+          }
+      }
+      
   }
 
   private RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
