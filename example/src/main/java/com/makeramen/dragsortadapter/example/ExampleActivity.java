@@ -48,7 +48,9 @@ public class ExampleActivity extends ActionBarActivity {
 
     recyclerView.setAdapter(new ExampleAdapter(recyclerView, data));
 
-    recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+    layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+    recyclerView.setLayoutManager(layoutManager);
     //recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
     //recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
     recyclerView.setItemAnimator(new DefaultItemAnimator());

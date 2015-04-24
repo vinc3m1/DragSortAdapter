@@ -19,8 +19,6 @@ package com.makeramen.dragsortadapter;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.DragEvent;
 import android.view.MotionEvent;
@@ -37,7 +35,6 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
 
   private final WeakReference<RecyclerView> recyclerViewRef;
   private long draggingId = RecyclerView.NO_ID;
-  private final Handler debounceHandler = new Handler(Looper.getMainLooper());
   private PointF debouncePoint = null;
   private final PointF targetPoint = new PointF();
   private final PointF lastPoint = new PointF(); // used to continue edge scrolling
@@ -77,7 +74,7 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
    * You probably want to use this to set the currently dragging item to blank while it's being
    * dragged
    *
-   * @return the id of the item currently being dragged or {@link RecyclerView.NO_ID } if not being
+   * @return the id of the item currently being dragged or {@code RecyclerView.NO_ID } if not being
    * dragged
    */
   public long getDraggingId() {
@@ -106,7 +103,7 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
     switch (event.getAction()) {
       case DragEvent.ACTION_DRAG_STARTED:
         draggingId = itemId;
-        notifyItemChanged(recyclerView.findViewHolderForItemId(itemId).getPosition());
+        notifyItemChanged(recyclerView.findViewHolderForItemId(itemId).getAdapterPosition());
         break;
 
       case DragEvent.ACTION_DRAG_LOCATION:
@@ -118,7 +115,7 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
 
         View child = recyclerView.findChildViewUnder(event.getX(), event.getY());
         if (child != null) {
-          toPosition = recyclerView.getChildViewHolder(child).getPosition();
+          toPosition = recyclerView.getChildViewHolder(child).getLayoutPosition();
         }
 
         if (toPosition >= 0 && fromPosition != toPosition) {
@@ -143,7 +140,7 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
 
                 View child = recyclerView.findChildViewUnder(debouncePoint.x, debouncePoint.y);
                 if (child != null) {
-                  int toPosition = recyclerView.getChildViewHolder(child).getPosition();
+                  int toPosition = recyclerView.getChildViewHolder(child).getLayoutPosition();
                   if (move(fromPosition, toPosition)) {
 
                     if (fromPosition == 0 || toPosition == 0) {
@@ -226,18 +223,24 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
   }
 
   private void handleScroll(RecyclerView rv, float x, float y, DragInfo dragInfo) {
-
-    if (rv.canScrollVertically(-1) && y < dragInfo.shadowTouchPoint.y) {
-      // scroll up
-      debounceHandler.removeCallbacksAndMessages(null);
+    if (rv.canScrollHorizontally(-1) && x < dragInfo.shadowTouchPoint.x) {
+      // scroll left
+      rv.scrollBy(-SCROLL_AMOUNT, 0);
       debouncePoint = null;
+    } else if (rv.canScrollHorizontally(1)
+        && x > (rv.getWidth() - (dragInfo.shadowSize.x - dragInfo.shadowTouchPoint.x))) {
+      // scroll right
+      rv.scrollBy(SCROLL_AMOUNT, 0);
+      debouncePoint = null;
+    } else if (rv.canScrollVertically(-1) && y < dragInfo.shadowTouchPoint.y) {
+      // scroll up
       rv.scrollBy(0, -SCROLL_AMOUNT);
+      debouncePoint = null;
     } else if (rv.canScrollVertically(1)
         && y > (rv.getHeight() - (dragInfo.shadowSize.y - dragInfo.shadowTouchPoint.y))) {
       // scroll down
-      debounceHandler.removeCallbacksAndMessages(null);
-      debouncePoint = null;
       rv.scrollBy(0, SCROLL_AMOUNT);
+      debouncePoint = null;
     }
   }
 
