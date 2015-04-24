@@ -24,7 +24,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -48,11 +47,11 @@ public class ExampleActivity extends ActionBarActivity {
 
     recyclerView.setAdapter(new ExampleAdapter(recyclerView, data));
 
-    LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-    layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-    recyclerView.setLayoutManager(layoutManager);
+    //LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+    //layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+    //recyclerView.setLayoutManager(layoutManager);
     //recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-    //recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
+    recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
     recyclerView.setItemAnimator(new DefaultItemAnimator());
   }
 
