@@ -1,6 +1,12 @@
 1.1.0
 -----
 
+- Support horizontal scrolling `LayoutManager`s
+
+
+1.1.0
+-----
+
 - `DragSortAdapter.ViewHolder` is now static.
 - Support libraries changed to compile dependencies. Partially because the new build tools [don't support it yet](https://code.google.com/p/android/issues/detail?id=149268).
 
