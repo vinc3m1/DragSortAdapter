@@ -17,7 +17,7 @@
 package com.makeramen.dragsortadapter.example;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,7 +30,7 @@ import butterknife.InjectView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExampleActivity extends ActionBarActivity {
+public class ExampleActivity extends AppCompatActivity {
 
   @InjectView(android.R.id.list) RecyclerView recyclerView;
 
