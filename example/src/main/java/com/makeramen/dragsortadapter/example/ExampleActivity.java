@@ -46,12 +46,7 @@ public class ExampleActivity extends AppCompatActivity {
     }
 
     recyclerView.setAdapter(new ExampleAdapter(recyclerView, data));
-
-    //LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-    //layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-    //recyclerView.setLayoutManager(layoutManager);
-    //recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-    recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
+    recyclerView.setLayoutManager(new LinearLayoutManager(this));
     recyclerView.setItemAnimator(new DefaultItemAnimator());
   }
 
