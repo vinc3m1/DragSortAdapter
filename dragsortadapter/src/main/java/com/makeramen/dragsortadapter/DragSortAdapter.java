@@ -46,6 +46,8 @@ public abstract class DragSortAdapter<VH extends DragSortAdapter.ViewHolder>
         return false;
       }
 
+      @Override public void onRequestDisallowInterceptTouchEvent(boolean b) { }
+
       @Override public void onTouchEvent(RecyclerView rv, MotionEvent e) { }
     });
 
