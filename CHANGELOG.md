@@ -1,3 +1,8 @@
+1.3.0
+-----
+
+- Fix compatibility with support libs 22.2.0
+
 1.2.0
 -----
 
