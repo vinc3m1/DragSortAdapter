@@ -33,7 +33,10 @@ final class DragManager implements View.OnDragListener {
     switch (event.getAction()) {
       case DragEvent.ACTION_DRAG_STARTED:
         draggingId = itemId;
-          adapter.notifyItemChanged(recyclerView.findViewHolderForItemId(itemId).getAdapterPosition());
+        RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForItemId(itemId);
+        if(viewHolder != null){
+          adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+        }
         break;
 
       case DragEvent.ACTION_DRAG_LOCATION:
