@@ -108,12 +108,9 @@ final class DragManager implements View.OnDragListener {
                   // so we try to reschedule the notifyItemChanged until after that
                   recyclerView.post(new Runnable() {
                     @Override public void run() {
-                      recyclerView.getItemAnimator().isRunning(
-                          new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
-                            @Override public void onAnimationsFinished() {
-                              adapter.notifyItemChanged(adapter.getPositionForId(itemId));
-                            }
-                          });
+                      while (recyclerView.getLayoutManager().onRequestChildFocus(recyclerView, null, null, null)) {
+                      }
+                      adapter.notifyItemChanged(getPositionForId(itemId));
                     }
                   });
                 } else {
