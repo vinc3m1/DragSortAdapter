@@ -106,14 +106,15 @@ final class DragManager implements View.OnDragListener {
                 if (vh != null && vh.getAdapterPosition() != position) {
                   // if positions don't match, there's still an outstanding move animation
                   // so we try to reschedule the notifyItemChanged until after that
-                  recyclerView.post(new Runnable() {
-                    @Override public void run() {
-                      recyclerView.getItemAnimator().isRunning(
-                          new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
-                            @Override public void onAnimationsFinished() {
-                              adapter.notifyItemChanged(adapter.getPositionForId(itemId));
-                            }
-                          });
+                  recyclerView.getItemAnimator().isRunning(new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
+                    @Override public void onAnimationsFinished() {
+                      recyclerView.post(new Runnable() {
+                        @Override public void run() {
+                          while (recyclerView.getLayoutManager().onRequestChildFocus(recyclerView, null, null, null)) {
+                          }
+                          adapter.notifyItemChanged(adapter.getPositionForId(itemId));
+                        }
+                      });
                     }
                   });
                 } else {
