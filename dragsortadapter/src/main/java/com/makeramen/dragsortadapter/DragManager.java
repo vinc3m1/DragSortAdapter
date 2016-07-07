@@ -68,10 +68,11 @@ final class DragManager implements View.OnDragListener {
                       recyclerView.getChildViewHolder(child).getAdapterPosition();
                   if (adapter.move(fromPosition, toPosition)) {
 
-                    if (fromPosition == 0 || toPosition == 0) {
-                      // fix for weird scrolling when animating first item
-                      recyclerView.scrollToPosition(0);
-                    }
+                      //This is not needed anymore since we fix the wired scrolling bugs in the example adapter.
+//                    if (fromPosition == 0 || toPosition == 0) {
+//                      // fix for weird scrolling when animating first item
+//                      recyclerView.scrollToPosition(0);
+//                    }
 
                     recyclerView.post(new Runnable() {
                       @Override public void run() {

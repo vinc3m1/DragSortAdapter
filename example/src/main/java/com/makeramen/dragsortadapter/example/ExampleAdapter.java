@@ -72,7 +72,16 @@ public class ExampleAdapter extends DragSortAdapter<ExampleAdapter.MainViewHolde
   }
 
   @Override public boolean move(int fromPosition, int toPosition) {
-    data.add(toPosition, data.remove(fromPosition));
+
+    //This if-else block fixes #2 and #24 bugs. This should be put into the base class or users should be warned to avoid wired scrolling.
+    if(fromPosition < toPosition)
+    {
+      data.add(toPosition, data.get(fromPosition));
+      data.remove(fromPosition);
+    }
+    else {
+      data.add(toPosition, data.remove(fromPosition));
+    }
     return true;
   }
 
